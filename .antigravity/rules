@@ -1,0 +1,61 @@
+# Tiptoro 项目规范
+
+## 技术栈
+
+### 前端
+- **框架**：Next.js 15+，使用 App Router
+- **样式**：Tailwind CSS + Shadcn UI
+- **状态管理**：TanStack Query（React Query）—— 所有异步/AI 状态（如"正在分析中..."加载状态）、缓存及服务端状态同步，均必须使用此库
+- **渲染策略**：数据获取页面优先使用 React Server Components（RSC）；仅在需要交互或使用 hooks 时才使用 Client Components
+
+### 跨平台策略
+- 以 **PWA**（渐进式 Web 应用）为主要策略，同时支持 Web 和移动端，并支持移动端摄像头拍照功能
+- 若需要更深层的原生设备 API 集成，使用 **Capacitor** 将 Next.js 应用打包为 iOS/Android 原生应用
+- 所有页面和组件**必须移动端优先，并完全响应式**
+
+---
+
+## 视觉风格
+
+- 参考设计系统：**Linear** 和 **Stripe**
+- 美学风格：**极简主义**，干净整洁，留白充足
+- 圆角：默认使用**大/超大圆角**（`rounded-xl`、`rounded-2xl`）
+- 字体排版：层级清晰，优先使用系统字体或 Inter 兼容字体
+- 色彩方案：中性背景 + 有目的的强调色；避免装饰性色彩噪音
+- 动效：仅使用细腻、克制的微动效
+
+---
+
+## 组件规范
+
+- 所有组件**必须适配移动端屏幕**（最小断点：375px）
+- 以 **Shadcn UI** 基础组件为底层；通过 Tailwind 工具类扩展
+- 禁止使用内联样式；所有样式通过 Tailwind 类名实现
+- 组件按功能/领域分组（而非按类型），统一放置于 `components/` 目录下
+
+---
+
+## UI 生成协议
+
+当用户请求生成 UI 时：
+1. **首先输出 React 组件预览**（JSX 代码块），再给出任何解释
+2. 组件应使用 Shadcn UI + Tailwind，符合 Linear/Stripe 极简美学风格
+3. 从一开始就包含移动端响应式设计（不提供纯桌面端原型）
+4. 预览之后，如有非显而易见的关键设计决策，简要说明
+
+---
+
+## AI 与异步状态
+
+- 所有服务端/AI 交互使用 **TanStack Query**（`useQuery`、`useMutation`、`useInfiniteQuery`）
+- AI 分析状态（pending、streaming、error、success）必须通过 query 状态显式处理——禁止使用临时 loading 布尔值
+- 在适当情况下缓存 AI 响应，避免冗余 API 调用
+
+---
+
+## 代码规范
+
+- 启用 TypeScript 严格模式
+- 文件命名：文件使用 `kebab-case`，组件使用 `PascalCase`
+- 组件样式、类型定义和逻辑尽量放在同一功能目录下
+- 表单提交和数据变更优先使用 Server Actions，而非传统 API 路由

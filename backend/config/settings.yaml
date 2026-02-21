@@ -1,0 +1,106 @@
+# ============================================================
+# TipToro 统一配置文件 config/settings.yaml
+# ============================================================
+# 存放：行为配置、模型路由、连接参数（无任何密钥）
+# 密钥统一存放在：.env 文件（不提交 git）
+#
+# 切换运行环境：修改 active_env，或设置环境变量 TIPTORO_ENV=cloud
+# ============================================================
+
+active_env: local   # local | cloud
+
+# ── 数据库 ────────────────────────────────────────────────────
+database:
+  local:
+    driver: sqlite
+    path: ./data/tiptoro_local.db
+    echo_sql: true
+
+  cloud:
+    driver: postgresql
+    host: localhost    # 由 DB_HOST 环境变量覆盖
+    port: 5432
+    name: tiptoro      # 由 DB_NAME 环境变量覆盖
+    pool_size: 10
+    max_overflow: 20
+    echo_sql: false
+
+# ── 对象存储 ──────────────────────────────────────────────────
+storage:
+  local:
+    driver: local
+    root_dir: ./data/storage
+    base_url: "http://localhost:8000/static/storage"
+
+  cloud:
+    driver: aliyun_oss   # 可改为 aws_s3
+    bucket: tiptoro-assets
+    region: cn-hangzhou
+    endpoint: "https://oss-cn-hangzhou.aliyuncs.com"
+    base_url: "https://tiptoro-assets.oss-cn-hangzhou.aliyuncs.com"
+
+    # AWS S3 备选（将 driver 改为 aws_s3 后使用）:
+    # driver: aws_s3
+    # bucket: tiptoro-assets
+    # region: us-east-1
+    # base_url: "https://tiptoro-assets.s3.amazonaws.com"
+
+# ── 大模型路由 ────────────────────────────────────────────────
+llm:
+  # 功能角色 → provider/model 映射（密钥在 .env 中）
+  roles:
+    cognitive_analysis: { provider: deepseek, model: deepseek-chat }
+    text_cleanup:       { provider: gemini,   model: gemini-2.0-flash }
+    report_writing:     { provider: deepseek, model: deepseek-chat }
+    fallback:           { provider: openai,   model: gpt-4o-mini }
+
+  # provider 非密信息（endpoint、超时、重试）
+  providers:
+    deepseek:
+      base_url: "https://api.deepseek.com/v1"
+      default_model: deepseek-chat
+      timeout: 60
+      max_retries: 3
+
+    gemini:
+      base_url: "https://generativelanguage.googleapis.com/v1beta"
+      default_model: gemini-2.0-flash
+      timeout: 60
+      max_retries: 3
+
+    openai:
+      base_url: "https://api.openai.com/v1"
+      default_model: gpt-4o
+      timeout: 60
+      max_retries: 3
+
+    grok:
+      base_url: "https://api.x.ai/v1"
+      default_model: grok-2-latest
+      timeout: 60
+      max_retries: 3
+
+    minimax:
+      base_url: "https://api.minimax.chat/v1"
+      default_model: abab6.5s-chat
+      timeout: 60
+      max_retries: 3
+
+  # 默认生成参数
+  generation_defaults:
+    temperature: 0.2
+    max_tokens: 2048
+    top_p: 0.95
+
+# ── 用户认证 ──────────────────────────────────────────────────
+auth:
+  email_verification: true     # false 可跳过邮箱验证（仅开发调试）
+  access_token_expire_hours: 168    # JWT 有效期（小时）= 7 天
+  frontend_base_url: "http://localhost:5173"  # 邮件验证链接的前缀
+
+  # SMTP 配置（密钥在 .env 中）
+  smtp:
+    host: smtp.gmail.com
+    port: 587
+    from_address: "noreply@tiptoro.app"
+    # 密钥: SMTP_USER / SMTP_PASSWORD（仅 cloud 环境需要）

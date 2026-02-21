@@ -1,0 +1,15 @@
+sqlalchemy
+pyyaml
+bcrypt
+PyJWT
+requests
+# Optional: for Aliyun OSS
+# oss2
+# Optional: for AWS S3
+# boto3
+# Optional: better .env loading
+# python-dotenv
+# Web framework (to be added when API layer is built)
+# fastapi
+# uvicorn[standard]
+# pydantic
